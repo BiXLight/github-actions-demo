@@ -21,7 +21,7 @@ jobs:
           echo "$PWD"
       - name: CD android
         run: |
-          cd android
+          cd android && echo "$PWD"
       - name: Echo current directory
         run: |
           echo "$PWD"
