@@ -16,3 +16,12 @@ jobs:
       - name: Run test
         run: |
           yarn test
+      - name: Echo current directory
+        run: |
+          echo "$PWD"
+      - name: CD android
+        run: |
+          cd android
+      - name: Echo current directory
+        run: |
+          echo "$PWD"
