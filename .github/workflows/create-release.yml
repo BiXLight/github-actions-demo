@@ -28,6 +28,16 @@ jobs:
               --repo="$GITHUB_REPOSITORY" \
               --title="${GITHUB_REPOSITORY#*/} ${{ steps.get-id.outputs.id }}" \
               --generate-notes
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get-id.outputs.id }}
+          release_name: Release ${{ steps.get-id.outputs.id }}
+          draft: false
+          prerelease: false
       - name: Upload Release APK
         id: upload_release_asset
         uses: actions/upload-release-asset@v1.0.1
@@ -35,6 +45,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: android/app/build/outputs/apk/release/
+          asset_path: app/build/outputs/apk/release/
           asset_name: app-release.apk
           asset_content_type: application/zip
