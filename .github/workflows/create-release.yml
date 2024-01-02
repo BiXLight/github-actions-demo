@@ -1,41 +1,40 @@
 on:
-    pull_request:
-      types: [closed]
-  jobs:
-    build:
-      runs-on: ubuntu-latest
-      if: ${{ github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')}}
-      steps:
-        - id: get-id
-          run: |
-            id=$(echo ${{github.event.pull_request.title}} | cut -d ';' -f1)
-            echo "id=$id" >> $GITHUB_OUTPUT
-        - name: Checkout
-          uses: actions/checkout@v4
-        - run: yarn install
-        - name: Setup Java
-          uses: actions/setup-java@v4
-          with:
-            distribution: 'oracle'
-            java-version: '11'
-        - name: Build APK
-          run: android/gradlew assembleRelease
-        - name: Create release
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            gh release create "${{ steps.get-id.outputs.id }}" \
-                --repo="$GITHUB_REPOSITORY" \
-                --title="${GITHUB_REPOSITORY#*/} ${{ steps.get-id.outputs.id }}" \
-                --generate-notes
-        - name: Upload Release APK
-          id: upload_release_asset
-          uses: actions/upload-release-asset@v1.0.1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: android/app/build/outputs/apk/release/
-            asset_name: app-release.apk
-            asset_content_type: application/zip
-        
+  pull_request:
+    types: [closed]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')}}
+    steps:
+      - id: get-id
+        run: |
+          id=$(echo ${{github.event.pull_request.title}} | cut -d ';' -f1)
+          echo "id=$id" >> $GITHUB_OUTPUT
+      - name: Checkout
+        uses: actions/checkout@v4
+      - run: yarn install
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '11'
+      - name: Build APK
+        run: android/gradlew assembleRelease
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.get-id.outputs.id }}" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${{ steps.get-id.outputs.id }}" \
+              --generate-notes
+      - name: Upload Release APK
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: android/app/build/outputs/apk/release/
+          asset_name: app-release.apk
+          asset_content_type: application/zip
